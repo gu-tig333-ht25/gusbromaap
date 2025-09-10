@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // Säkerställer att flutter initieras så status och navigeringsfält kan tas bort
+
   SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.manual,
     overlays: [],
@@ -32,16 +34,37 @@ class MyApp extends StatelessWidget {
         ),
         body: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text('TODO lista är tom', style: TextStyle(fontSize: 24)),
-                ],
-              ),
-            ],
+            children: List.generate(6, (index) {
+              return Container(
+                padding: EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Colors.grey, width: 2.0),
+                  ),
+                ), // Understrykning))),
+                child: Row(
+                  children: [
+                    Checkbox(value: false, onChanged: (_) {}),
+                    SizedBox(width: 8), // Mellanrum mellan checkbox och text
+                    Text(
+                      'Saker att göra ${index + 1}',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    Spacer(), // tar upp all plats mellan texten och ikonen
+                    Icon(Icons.close, color: Colors.black),
+                  ],
+                ),
+              );
+            }),
           ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            // tomt sålänge
+          },
+          backgroundColor: Colors.grey,
+          shape: CircleBorder(),
+          child: Icon(Icons.add, color: Colors.white, size: 45),
         ),
       ),
     );
