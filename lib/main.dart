@@ -53,7 +53,7 @@ class HomePage extends StatelessWidget {
                 border: Border(
                   bottom: BorderSide(color: Colors.grey, width: 2.0),
                 ),
-              ), // Understrykning))),
+              ),
               child: Row(
                 children: [
                   Checkbox(value: false, onChanged: (_) {}),
@@ -85,7 +85,7 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class AddToDoItem extends StatelessWidget {
+class AddToDoItem extends StatelessWidget { // "Lägg till sidan"
   const AddToDoItem({super.key});
 
   @override
@@ -112,7 +112,54 @@ class AddToDoItem extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(child: Text("ny sida")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start, // default
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              margin: EdgeInsets.fromLTRB(
+                25,
+                40,
+                25,
+                25,
+              ), // vänster, topp, höger, botten
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black, width: 2),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    "Skriv ny ToDo!",
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleLarge?.copyWith(color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton.icon(
+                  icon: Icon(Icons.add, color: Colors.black),
+                  label: Text(
+                    "ADD",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold, 
+                    ),
+                  ),
+                  onPressed: () {
+                    // tomt sålänge
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
