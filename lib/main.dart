@@ -24,12 +24,32 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class ToDo {
+  final String text;
+  ToDo(this.text);
+}
+
 class HomePage extends StatelessWidget {
   // "Hemsidan"
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    List<ToDo> todos = [
+      ToDo('Sak att göra'),
+      ToDo("Ny sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ännu en sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ny sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ännu en sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ny sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ännu en sak att göra"),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: Text('TIG333 TODO'),
@@ -46,12 +66,8 @@ class HomePage extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: Column(
-          children: [
-            _item(context, 'Sak att göra'),
-            _item(context, "Ny sak att göra"),
-            _item(context, "Ännu en sak att göra"),
-          ],
+        child: ListView(
+          children: todos.map((todo) => _item(context, todo.text)).toList(),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -149,7 +165,7 @@ class AddToDoItem extends StatelessWidget {
   }
 }
 
-Widget _item(BuildContext context, String todo) {
+Widget _item(BuildContext context, String text) {
   // Retunerar todo-box
   return Container(
     padding: EdgeInsets.all(15),
@@ -160,7 +176,7 @@ Widget _item(BuildContext context, String todo) {
       children: [
         Checkbox(value: false, onChanged: (_) {}),
         SizedBox(width: 8), // Mellanrum mellan checkbox och text
-        Text(todo, style: Theme.of(context).textTheme.titleLarge),
+        Text(text, style: Theme.of(context).textTheme.titleLarge),
         Spacer(), // tar upp all plats mellan texten och ikonen
         Icon(Icons.close, color: Colors.black),
       ],
