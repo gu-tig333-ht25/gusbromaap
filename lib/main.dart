@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
+  // "Hemsidan"
   const HomePage({super.key});
 
   @override
@@ -46,28 +47,11 @@ class HomePage extends StatelessWidget {
       ),
       body: Center(
         child: Column(
-          children: List.generate(6, (index) {
-            return Container(
-              padding: EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey, width: 2.0),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Checkbox(value: false, onChanged: (_) {}),
-                  SizedBox(width: 8), // Mellanrum mellan checkbox och text
-                  Text(
-                    'Saker att göra ${index + 1}',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  Spacer(), // tar upp all plats mellan texten och ikonen
-                  Icon(Icons.close, color: Colors.black),
-                ],
-              ),
-            );
-          }),
+          children: [
+            _item(context, 'Sak att göra'),
+            _item(context, "Ny sak att göra"),
+            _item(context, "Ännu en sak att göra"),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -85,7 +69,8 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class AddToDoItem extends StatelessWidget { // "Lägg till sidan"
+class AddToDoItem extends StatelessWidget {
+  // "Lägg till sidan"
   const AddToDoItem({super.key});
 
   @override
@@ -148,7 +133,7 @@ class AddToDoItem extends StatelessWidget { // "Lägg till sidan"
                     "ADD",
                     style: TextStyle(
                       color: Colors.black,
-                      fontWeight: FontWeight.bold, 
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   onPressed: () {
@@ -162,4 +147,23 @@ class AddToDoItem extends StatelessWidget { // "Lägg till sidan"
       ),
     );
   }
+}
+
+Widget _item(BuildContext context, String todo) {
+  // Retunerar todo-box
+  return Container(
+    padding: EdgeInsets.all(15),
+    decoration: BoxDecoration(
+      border: Border(bottom: BorderSide(color: Colors.grey, width: 2.0)),
+    ),
+    child: Row(
+      children: [
+        Checkbox(value: false, onChanged: (_) {}),
+        SizedBox(width: 8), // Mellanrum mellan checkbox och text
+        Text(todo, style: Theme.of(context).textTheme.titleLarge),
+        Spacer(), // tar upp all plats mellan texten och ikonen
+        Icon(Icons.close, color: Colors.black),
+      ],
+    ),
+  );
 }
