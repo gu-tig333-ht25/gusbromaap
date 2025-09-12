@@ -48,6 +48,13 @@ class HomePage extends StatelessWidget {
       ToDo("Ny sak att göra"),
       ToDo('Sak att göra'),
       ToDo("Ännu en sak att göra"),
+      ToDo("Ny sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ännu en sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ny sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ännu en sak att göra"),
     ];
 
     return Scaffold(
@@ -65,10 +72,8 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(
-        child: ListView(
-          children: todos.map((todo) => _item(context, todo.text)).toList(),
-        ),
+      body: ListView(
+        children: todos.map((todo) => _item(context, todo.text)).toList(),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
