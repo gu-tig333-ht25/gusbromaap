@@ -1,123 +1,210 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // Säkerställer att flutter initieras så status och navigeringsfält kan tas bort
+
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.manual,
+    overlays: [],
+  ); // Gömmer status- och navigeringsfält
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
+  const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'TIG333 TODO',
+      home: HomePage(), // Anropar HomePage som är hemsidan
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
+class ToDo {
+  final String text;
+  ToDo(this.text);
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class HomePage extends StatelessWidget {
+  // "Hemsidan"
+  const HomePage({super.key});
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  Widget build(BuildContext context) {
+    List<ToDo> todos = [
+      ToDo('Sak att göra'),
+      ToDo("Ny sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ännu en sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ny sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ännu en sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ny sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ännu en sak att göra"),
+      ToDo("Ny sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ännu en sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ny sak att göra"),
+      ToDo('Sak att göra'),
+      ToDo("Ännu en sak att göra"),
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('TIG333 TODO'),
+        centerTitle: true,
+        backgroundColor: Colors.grey,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.more_vert), // Tre punkter ikon
+            tooltip: 'Meny', // namn för menyikonen
+            onPressed: () {
+              // tomt sålänge
+            },
+          ),
+        ],
+      ),
+      body: ListView(
+        children: todos.map((todo) => _item(context, todo.text)).toList(),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddToDoItem()),
+          );
+        },
+        backgroundColor: Colors.grey,
+        shape: CircleBorder(),
+        child: Icon(Icons.add, color: Colors.white, size: 45),
+      ),
+    );
+  }
+}
+
+class AddToDoItem extends StatefulWidget {
+  // "Lägg till sidan"
+  const AddToDoItem({super.key});
+
+  @override
+  _AddToDoItemState createState() => _AddToDoItemState();
+}
+
+class _AddToDoItemState extends State<AddToDoItem> {
+  // "Lägg till sidan" innehåll
+  final TextEditingController _controller =
+      TextEditingController(); // Controller för TextField
+
+  @override
+  void dispose() {
+    _controller.dispose(); // Städar upp controllern när sidan försvinner
+    super.dispose();
+  }
+
+  void _addToDo() {
+    String input = _controller.text;
+    print("Användarens ToDo: $input");
+    // Hämtar input från textfeld och printar i konsolen än så länge
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text('TIG333 TODO'),
+        centerTitle: true,
+        backgroundColor: Colors.grey,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios), // Pil ikon
+          tooltip: 'Tillbaka', // namn för pilikonen
+          onPressed: () {
+            Navigator.pop(context); // Går tillbaka till föregående sida
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.more_vert), // Tre punkter ikon
+            tooltip: 'Meny', // namn för menyikonen
+            onPressed: () {
+              // tomt sålänge
+            },
+          ),
+        ],
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+          mainAxisAlignment: MainAxisAlignment.start, // default
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              margin: EdgeInsets.fromLTRB(
+                25,
+                40,
+                25,
+                25,
+              ), // vänster, topp, höger, botten
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black, width: 2),
+              ),
+              child: TextField(
+                controller: _controller,
+                style: Theme.of(context).textTheme.titleLarge,
+                decoration: InputDecoration(
+                  hintText: "Skriv ny ToDo!", // Instruktions text
+                  hintStyle: TextStyle(color: Colors.grey),
+                  border: InputBorder.none, // Tar bort standard understrykning
+                ),
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton.icon(
+                  icon: Icon(Icons.add, color: Colors.black),
+                  label: Text(
+                    "ADD",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: () {
+                    _addToDo();
+                  },
+                ),
+              ],
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+Widget _item(BuildContext context, String text) {
+  // Retunerar todo-box
+  return Container(
+    padding: EdgeInsets.all(15),
+    decoration: BoxDecoration(
+      border: Border(bottom: BorderSide(color: Colors.grey, width: 2.0)),
+    ),
+    child: Row(
+      children: [
+        Checkbox(value: false, onChanged: (_) {}),
+        SizedBox(width: 8), // Mellanrum mellan checkbox och text
+        Text(text, style: Theme.of(context).textTheme.titleLarge),
+        Spacer(), // tar upp all plats mellan texten och ikonen
+        Icon(Icons.close, color: Colors.black),
+      ],
+    ),
+  );
 }
