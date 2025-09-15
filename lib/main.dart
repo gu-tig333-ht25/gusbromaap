@@ -90,9 +90,30 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class AddToDoItem extends StatelessWidget {
+class AddToDoItem extends StatefulWidget {
   // "Lägg till sidan"
   const AddToDoItem({super.key});
+
+  @override
+  _AddToDoItemState createState() => _AddToDoItemState();
+}
+
+class _AddToDoItemState extends State<AddToDoItem> {
+  // "Lägg till sidan" innehåll
+  final TextEditingController _controller =
+      TextEditingController(); // Controller för TextField
+
+  @override
+  void dispose() {
+    _controller.dispose(); // Städar upp controllern när sidan försvinner
+    super.dispose();
+  }
+
+  void _addToDo() {
+    String input = _controller.text;
+    print("Användarens ToDo: $input");
+    // Hämtar input från textfeld och printar i konsolen än så länge
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -134,15 +155,14 @@ class AddToDoItem extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black, width: 2),
               ),
-              child: Row(
-                children: [
-                  Text(
-                    "Skriv ny ToDo!",
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleLarge?.copyWith(color: Colors.grey),
-                  ),
-                ],
+              child: TextField(
+                controller: _controller,
+                style: Theme.of(context).textTheme.titleLarge,
+                decoration: InputDecoration(
+                  hintText: "Skriv ny ToDo!", // Instruktions text
+                  hintStyle: TextStyle(color: Colors.grey),
+                  border: InputBorder.none, // Tar bort standard understrykning
+                ),
               ),
             ),
             Row(
@@ -158,7 +178,7 @@ class AddToDoItem extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    // tomt sålänge
+                    _addToDo();
                   },
                 ),
               ],
