@@ -1,5 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+
+// AppState är appens "state-klass". Här sparas data som kan ändras
+// medan appen körs, och kan meddela UI:t när något ändras
+class AppState extends ChangeNotifier {
+  final List<ToDo> _todos = []; // Privat lista med alla ToDo objekt
+
+  List<ToDo> get todos => List.unmodifiable(
+    _todos,
+  ); // Gör listan tillgänglig för andra klasser och kan bara ändras inifrån AppState
+
+  void addToDo(String text) {
+    _todos.add(ToDo(text));
+    notifyListeners();
+  }
+
+  void removeToDo(ToDo todo) {
+    _todos.remove(todo);
+    notifyListeners();
+  }
+}
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized(); // Säkerställer att flutter initieras så status och navigeringsfält kan tas bort
@@ -8,7 +29,11 @@ void main() {
     SystemUiMode.manual,
     overlays: [],
   ); // Gömmer status- och navigeringsfält
-  runApp(MyApp());
+  AppState state =
+      AppState(); // Skapar en instans av AppState som håller koll på appens tillstånd
+  runApp(
+    ChangeNotifierProvider(create: (context) => state, child: MyApp()),
+  ); // Gör AppState tillgänglig i hela appen via Provider
 }
 
 class MyApp extends StatelessWidget {
@@ -35,27 +60,9 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<ToDo> todos = [
-      ToDo('Sak att göra'),
-      ToDo("Ny sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ännu en sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ny sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ännu en sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ny sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ännu en sak att göra"),
-      ToDo("Ny sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ännu en sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ny sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ännu en sak att göra"),
-    ];
+    final todos = context
+        .watch<AppState>()
+        .todos; // Hämtar listan från AppState och lyssnar på ändringar
 
     return Scaffold(
       appBar: AppBar(
@@ -67,13 +74,13 @@ class HomePage extends StatelessWidget {
             icon: Icon(Icons.more_vert), // Tre punkter ikon
             tooltip: 'Meny', // namn för menyikonen
             onPressed: () {
-              // tomt sålänge
+              // tomt så länge
             },
           ),
         ],
       ),
       body: ListView(
-        children: todos.map((todo) => _item(context, todo.text)).toList(),
+        children: todos.map((todo) => _item(context, todo)).toList(),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -110,9 +117,11 @@ class _AddToDoItemState extends State<AddToDoItem> {
   }
 
   void _addToDo() {
-    String input = _controller.text;
-    print("Användarens ToDo: $input");
-    // Hämtar input från textfeld och printar i konsolen än så länge
+    final text = _controller.text.trim();
+    if (text.isNotEmpty) {
+      context.read<AppState>().addToDo(text); // Lägg till ToDo i AppState
+      _controller.clear(); // Töm TextField
+    }
   }
 
   @override
@@ -165,23 +174,18 @@ class _AddToDoItemState extends State<AddToDoItem> {
                 ),
               ),
             ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextButton.icon(
-                  icon: Icon(Icons.add, color: Colors.black),
-                  label: Text(
-                    "ADD",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  onPressed: () {
-                    _addToDo();
-                  },
+            TextButton.icon(
+              icon: Icon(Icons.add, color: Colors.black),
+              label: Text(
+                "ADD",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
+              ),
+              onPressed: () {
+                _addToDo();
+              },
             ),
           ],
         ),
@@ -190,7 +194,7 @@ class _AddToDoItemState extends State<AddToDoItem> {
   }
 }
 
-Widget _item(BuildContext context, String text) {
+Widget _item(BuildContext context, ToDo todo) {
   // Retunerar todo-box
   return Container(
     padding: EdgeInsets.all(15),
@@ -201,9 +205,14 @@ Widget _item(BuildContext context, String text) {
       children: [
         Checkbox(value: false, onChanged: (_) {}),
         SizedBox(width: 8), // Mellanrum mellan checkbox och text
-        Text(text, style: Theme.of(context).textTheme.titleLarge),
+        Text(todo.text, style: Theme.of(context).textTheme.titleLarge),
         Spacer(), // tar upp all plats mellan texten och ikonen
-        Icon(Icons.close, color: Colors.black),
+        IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () {
+            context.read<AppState>().removeToDo(todo); // Tar bort ToDo:n
+          },
+        ),
       ],
     ),
   );
