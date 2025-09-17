@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+class ToDo {
+  final String text;
+  bool isDone;
+
+  ToDo(this.text, {this.isDone = false});
+}
+
 // AppState är appens "state-klass". Här sparas data som kan ändras
 // medan appen körs, och kan meddela UI:t när något ändras
 class AppState extends ChangeNotifier {
@@ -27,20 +34,6 @@ class AppState extends ChangeNotifier {
   }
 }
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized(); // Säkerställer att flutter initieras så status och navigeringsfält kan tas bort
-
-  SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.manual,
-    overlays: [],
-  ); // Gömmer status- och navigeringsfält
-  AppState state =
-      AppState(); // Skapar en instans av AppState som håller koll på appens tillstånd
-  runApp(
-    ChangeNotifierProvider(create: (context) => state, child: MyApp()),
-  ); // Gör AppState tillgänglig i hela appen via Provider
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -52,13 +45,6 @@ class MyApp extends StatelessWidget {
       home: HomePage(), // Anropar HomePage som är hemsidan
     );
   }
-}
-
-class ToDo {
-  final String text;
-  bool isDone;
-
-  ToDo(this.text, {this.isDone = false});
 }
 
 class HomePage extends StatelessWidget {
@@ -241,4 +227,18 @@ Widget _item(BuildContext context, ToDo todo) {
       ],
     ),
   );
+}
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // Säkerställer att flutter initieras så status och navigeringsfält kan tas bort
+
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.manual,
+    overlays: [],
+  ); // Gömmer status- och navigeringsfält
+  AppState state =
+      AppState(); // Skapar en instans av AppState som håller koll på appens tillstånd
+  runApp(
+    ChangeNotifierProvider(create: (context) => state, child: MyApp()),
+  ); // Gör AppState tillgänglig i hela appen via Provider
 }
