@@ -9,14 +9,31 @@ class ToDo {
   ToDo(this.text, {this.isDone = false});
 }
 
+enum TodoFilter { all, done, undone } // fasta värden för filtreringen
+
 // AppState är appens "state-klass". Här sparas data som kan ändras
 // medan appen körs, och kan meddela UI:t när något ändras
 class AppState extends ChangeNotifier {
   final List<ToDo> _todos = []; // Privat lista med alla ToDo objekt
+  TodoFilter _filter = TodoFilter.all; // default all för filter
 
-  List<ToDo> get todos => List.unmodifiable(
-    _todos,
-  ); // Gör listan tillgänglig för andra klasser och kan bara ändras inifrån AppState
+  List<ToDo> get todos {
+    switch (_filter) {
+      case TodoFilter.done:
+        return _todos.where((t) => t.isDone).toList();
+      case TodoFilter.undone:
+        return _todos.where((t) => !t.isDone).toList();
+      case TodoFilter.all:
+        return List.unmodifiable(_todos);
+    }
+  } // Gör filtrerad lista tillgänglig för andra klasser och kan bara ändras inifrån AppState
+
+  TodoFilter get filter => _filter;
+
+  void setFilter(TodoFilter filter) {
+    _filter = filter;
+    notifyListeners();
+  }
 
   void addToDo(String text) {
     _todos.add(ToDo(text));
@@ -63,12 +80,17 @@ class HomePage extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.grey,
         actions: [
-          IconButton(
+          PopupMenuButton<TodoFilter>(
             icon: Icon(Icons.more_vert), // Tre punkter ikon
-            tooltip: 'Meny', // namn för menyikonen
-            onPressed: () {
-              // tomt så länge
+            tooltip: 'Filtrera',
+            onSelected: (filter) {
+              context.read<AppState>().setFilter(filter);
             },
+            itemBuilder: (context) => [
+              PopupMenuItem(value: TodoFilter.all, child: Text('all')),
+              PopupMenuItem(value: TodoFilter.done, child: Text('done')),
+              PopupMenuItem(value: TodoFilter.undone, child: Text('undone')),
+            ],
           ),
         ],
       ),
