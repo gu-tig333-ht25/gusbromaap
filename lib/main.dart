@@ -20,6 +20,11 @@ class AppState extends ChangeNotifier {
     _todos.remove(todo);
     notifyListeners();
   }
+
+  void toggleToDoStatus(ToDo todo) {
+    todo.isDone = !todo.isDone; // växlar mellan true/false
+    notifyListeners();
+  }
 }
 
 void main() {
@@ -51,7 +56,9 @@ class MyApp extends StatelessWidget {
 
 class ToDo {
   final String text;
-  ToDo(this.text);
+  bool isDone;
+
+  ToDo(this.text, {this.isDone = false});
 }
 
 class HomePage extends StatelessWidget {
@@ -203,9 +210,27 @@ Widget _item(BuildContext context, ToDo todo) {
     ),
     child: Row(
       children: [
-        Checkbox(value: false, onChanged: (_) {}),
+        Checkbox(
+          value: todo.isDone,
+          fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+            if (states.contains(WidgetState.selected)) {
+              return Colors.grey; // Färg när markerad
+            }
+            return Colors.transparent; // Färg när inte markerad
+          }),
+          onChanged: (_) {
+            context.read<AppState>().toggleToDoStatus(todo);
+          },
+        ),
         SizedBox(width: 8), // Mellanrum mellan checkbox och text
-        Text(todo.text, style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          todo.text,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            decoration: todo.isDone
+                ? TextDecoration.lineThrough
+                : TextDecoration.none,
+          ),
+        ),
         Spacer(), // tar upp all plats mellan texten och ikonen
         IconButton(
           icon: Icon(Icons.close),
