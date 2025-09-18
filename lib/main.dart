@@ -129,7 +129,6 @@ class HomePage extends StatelessWidget {
           : ListView(
               children: todos.map((todo) => _item(context, todo)).toList(),
             ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -137,7 +136,6 @@ class HomePage extends StatelessWidget {
             MaterialPageRoute(builder: (context) => AddToDoItem()),
           );
         },
-        backgroundColor: Theme.of(context).primaryColor,
         shape: CircleBorder(),
         child: Icon(Icons.add, size: 45),
       ),
