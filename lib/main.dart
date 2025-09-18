@@ -101,7 +101,6 @@ class HomePage extends StatelessWidget {
     final todos = context
         .watch<AppState>()
         .todos; // Hämtar listan från AppState och lyssnar på ändringar
-    final filterName = context.watch<AppState>().filter.name;
 
     int numberOfTodos = todos.length;
 
@@ -116,24 +115,19 @@ class HomePage extends StatelessWidget {
               context.read<AppState>().setFilter(filter);
             },
             itemBuilder: (context) => [
-              PopupMenuItem(value: TodoFilter.all, child: Text('all')),
-              PopupMenuItem(value: TodoFilter.done, child: Text('done')),
-              PopupMenuItem(value: TodoFilter.undone, child: Text('undone')),
+              PopupMenuItem(value: TodoFilter.all, child: Text('alla')),
+              PopupMenuItem(value: TodoFilter.done, child: Text('färdiga')),
+              PopupMenuItem(value: TodoFilter.undone, child: Text('pågående')),
             ],
           ),
         ],
       ),
-      body: numberOfTodos == 0
-          ? Center(
-              child: Text(
-                "Finns inga todos i $filterName",
-                style: TextStyle(color: Colors.grey),
-              ),
-            )
-          : Expanded(
-              child: ListView(
-                children: todos.map((todo) => _item(context, todo)).toList(),
-              ),
+      body:
+          numberOfTodos ==
+              0 // Om sant visas _emptyListMessage annars visas todo listan
+          ? Center(child: _emptyListMessage(context))
+          : ListView(
+              children: todos.map((todo) => _item(context, todo)).toList(),
             ),
 
       floatingActionButton: FloatingActionButton(
@@ -199,9 +193,9 @@ class _AddToDoItemState extends State<AddToDoItem> {
               Navigator.pop(context); // Går tillbaka till föregående sida
             },
             itemBuilder: (context) => [
-              PopupMenuItem(value: TodoFilter.all, child: Text('all')),
-              PopupMenuItem(value: TodoFilter.done, child: Text('done')),
-              PopupMenuItem(value: TodoFilter.undone, child: Text('undone')),
+              PopupMenuItem(value: TodoFilter.all, child: Text('alla')),
+              PopupMenuItem(value: TodoFilter.done, child: Text('färdiga')),
+              PopupMenuItem(value: TodoFilter.undone, child: Text('pågående')),
             ],
           ),
         ],
@@ -243,6 +237,24 @@ class _AddToDoItemState extends State<AddToDoItem> {
           ],
         ),
       ),
+    );
+  }
+}
+
+Widget _emptyListMessage(BuildContext context) {
+  final filter = context.watch<AppState>().filter;
+
+  if (filter == TodoFilter.all) {
+    return Text("Finns inga todos", style: TextStyle(color: Colors.grey));
+  } else if (filter == TodoFilter.done) {
+    return Text(
+      "Finns inga färdiga todos",
+      style: TextStyle(color: Colors.grey),
+    );
+  } else {
+    return Text(
+      "Finns inga pågående todos",
+      style: TextStyle(color: Colors.grey),
     );
   }
 }
