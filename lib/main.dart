@@ -133,7 +133,7 @@ class HomePage extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddToDoItem()),
+            MaterialPageRoute(builder: (context) => _AddToDoItem()),
           );
         },
         shape: CircleBorder(),
@@ -143,15 +143,15 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class AddToDoItem extends StatefulWidget {
+class _AddToDoItem extends StatefulWidget {
   // "Lägg till sidan"
-  const AddToDoItem({super.key});
+  const _AddToDoItem({super.key});
 
   @override
   _AddToDoItemState createState() => _AddToDoItemState();
 }
 
-class _AddToDoItemState extends State<AddToDoItem> {
+class _AddToDoItemState extends State<_AddToDoItem> {
   // "Lägg till sidan" innehåll
   final TextEditingController _controller =
       TextEditingController(); // Controller för TextField
