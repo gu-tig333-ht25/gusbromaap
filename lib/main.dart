@@ -56,9 +56,37 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'TIG333 TODO',
+      theme: ThemeData(
+        primaryColor: Colors.blue,
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: AppBarTheme(
+          centerTitle: true,
+          titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+        ),
+        iconTheme: IconThemeData(color: Colors.black),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          hintStyle: TextStyle(color: Colors.grey),
+          border: InputBorder.none,
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: ButtonStyle(
+            foregroundColor: WidgetStateProperty.all(Colors.white), // textfärg
+            backgroundColor: WidgetStateProperty.all(Colors.blue),
+            textStyle: WidgetStateProperty.all(
+              TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ), // bakgrund
+      ),
       home: HomePage(), // Anropar HomePage som är hemsidan
     );
   }
@@ -76,9 +104,7 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('TIG333 TODO'),
-        centerTitle: true,
-        backgroundColor: Colors.grey,
+        title: Text('Todo Lista'),
         actions: [
           PopupMenuButton<TodoFilter>(
             icon: Icon(Icons.more_vert), // Tre punkter ikon
@@ -104,9 +130,9 @@ class HomePage extends StatelessWidget {
             MaterialPageRoute(builder: (context) => AddToDoItem()),
           );
         },
-        backgroundColor: Colors.grey,
+        backgroundColor: Theme.of(context).primaryColor,
         shape: CircleBorder(),
-        child: Icon(Icons.add, color: Colors.white, size: 45),
+        child: Icon(Icons.add, size: 45),
       ),
     );
   }
@@ -143,9 +169,7 @@ class _AddToDoItemState extends State<AddToDoItem> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('TIG333 TODO'),
-        centerTitle: true,
-        backgroundColor: Colors.grey,
+        title: Text('Todo Lista'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios), // Pil ikon
           tooltip: 'Tillbaka', // namn för pilikonen
@@ -177,27 +201,22 @@ class _AddToDoItemState extends State<AddToDoItem> {
               ), // vänster, topp, höger, botten
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 2),
+                border: Border.all(
+                  color: Theme.of(context).primaryColor,
+                  width: 2,
+                ),
               ),
               child: TextField(
                 controller: _controller,
                 style: Theme.of(context).textTheme.titleLarge,
                 decoration: InputDecoration(
-                  hintText: "Skriv ny ToDo!", // Instruktions text
-                  hintStyle: TextStyle(color: Colors.grey),
-                  border: InputBorder.none, // Tar bort standard understrykning
+                  hintText: "Skriv ny todo!", // Instruktions text
                 ),
               ),
             ),
             TextButton.icon(
-              icon: Icon(Icons.add, color: Colors.black),
-              label: Text(
-                "ADD",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              icon: Icon(Icons.add),
+              label: Text("ADD"),
               onPressed: () {
                 _addToDo();
               },
@@ -214,7 +233,9 @@ Widget _item(BuildContext context, ToDo todo) {
   return Container(
     padding: EdgeInsets.all(15),
     decoration: BoxDecoration(
-      border: Border(bottom: BorderSide(color: Colors.grey, width: 2.0)),
+      border: Border(
+        bottom: BorderSide(color: Theme.of(context).primaryColor, width: 2.0),
+      ),
     ),
     child: Row(
       children: [
@@ -222,7 +243,7 @@ Widget _item(BuildContext context, ToDo todo) {
           value: todo.isDone,
           fillColor: WidgetStateProperty.resolveWith<Color>((states) {
             if (states.contains(WidgetState.selected)) {
-              return Colors.grey; // Färg när markerad
+              return Theme.of(context).primaryColor; // Färg när markerad
             }
             return Colors.transparent; // Färg när inte markerad
           }),
