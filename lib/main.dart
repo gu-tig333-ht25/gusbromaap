@@ -101,6 +101,9 @@ class HomePage extends StatelessWidget {
     final todos = context
         .watch<AppState>()
         .todos; // Hämtar listan från AppState och lyssnar på ändringar
+    final filterName = context.watch<AppState>().filter.name;
+
+    int numberOfTodos = todos.length;
 
     return Scaffold(
       appBar: AppBar(
@@ -120,9 +123,19 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView(
-        children: todos.map((todo) => _item(context, todo)).toList(),
-      ),
+      body: numberOfTodos == 0
+          ? Center(
+              child: Text(
+                "Finns inga todos i $filterName",
+                style: TextStyle(color: Colors.grey),
+              ),
+            )
+          : Expanded(
+              child: ListView(
+                children: todos.map((todo) => _item(context, todo)).toList(),
+              ),
+            ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
