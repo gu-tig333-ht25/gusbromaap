@@ -178,12 +178,18 @@ class _AddToDoItemState extends State<AddToDoItem> {
           },
         ),
         actions: [
-          IconButton(
+          PopupMenuButton<TodoFilter>(
             icon: Icon(Icons.more_vert), // Tre punkter ikon
-            tooltip: 'Meny', // namn för menyikonen
-            onPressed: () {
-              // tomt sålänge
+            tooltip: 'Filtrera',
+            onSelected: (filter) {
+              context.read<AppState>().setFilter(filter);
+              Navigator.pop(context); // Går tillbaka till föregående sida
             },
+            itemBuilder: (context) => [
+              PopupMenuItem(value: TodoFilter.all, child: Text('all')),
+              PopupMenuItem(value: TodoFilter.done, child: Text('done')),
+              PopupMenuItem(value: TodoFilter.undone, child: Text('undone')),
+            ],
           ),
         ],
       ),
