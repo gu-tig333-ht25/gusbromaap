@@ -9,13 +9,12 @@ class ToDo {
   ToDo(this.text, {this.isDone = false});
 }
 
-enum TodoFilter { all, done, undone } // fasta värden för filtreringen
+enum TodoFilter { all, done, undone } // Fasta värden för filtreringen
 
-// AppState är appens "state-klass". Här sparas data som kan ändras
-// medan appen körs, och kan meddela UI:t när något ändras
+// Här sparas data som kan ändras medan appen körs
 class AppState extends ChangeNotifier {
   final List<ToDo> _todos = []; // Privat lista med alla ToDo objekt
-  TodoFilter _filter = TodoFilter.all; // default all för filter
+  TodoFilter _filter = TodoFilter.all; // Default all för filter
 
   List<ToDo> get todos {
     switch (_filter) {
@@ -87,7 +86,7 @@ class MyApp extends StatelessWidget {
           ),
         ), // bakgrund
       ),
-      home: HomePage(), // Anropar HomePage som är hemsidan
+      home: HomePage(), // Anropar HomePage som hemsidan
     );
   }
 }
@@ -177,7 +176,7 @@ class _AddToDoItemState extends State<_AddToDoItem> {
         title: Text('Todo Lista'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios), // Pil ikon
-          tooltip: 'Tillbaka', // namn för pilikonen
+          tooltip: 'Tillbaka',
           onPressed: () {
             Navigator.pop(context); // Går tillbaka till föregående sida
           },
@@ -200,7 +199,7 @@ class _AddToDoItemState extends State<_AddToDoItem> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start, // default
+          mainAxisAlignment: MainAxisAlignment.start, // Default
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
@@ -209,7 +208,7 @@ class _AddToDoItemState extends State<_AddToDoItem> {
                 40,
                 25,
                 25,
-              ), // vänster, topp, höger, botten
+              ), // Vänster, topp, höger, botten
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
                 border: Border.all(
@@ -240,6 +239,7 @@ class _AddToDoItemState extends State<_AddToDoItem> {
 }
 
 Widget _emptyListMessage(BuildContext context) {
+  // Retunerar Text "Finns inga todos..."
   final filter = context.watch<AppState>().filter;
 
   if (filter == TodoFilter.all) {
@@ -280,7 +280,7 @@ Widget _item(BuildContext context, ToDo todo) {
             context.read<AppState>().toggleToDoStatus(todo);
           },
         ),
-        SizedBox(width: 8), // Mellanrum mellan checkbox och text
+        SizedBox(width: 8),
         Text(
           todo.text,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -289,7 +289,7 @@ Widget _item(BuildContext context, ToDo todo) {
                 : TextDecoration.none,
           ),
         ),
-        Spacer(), // tar upp all plats mellan texten och ikonen
+        Spacer(), // Tar upp all plats mellan texten och ikonen
         IconButton(
           icon: Icon(Icons.close),
           onPressed: () {
