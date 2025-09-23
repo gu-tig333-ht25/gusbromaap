@@ -1,14 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized(); // Säkerställer att flutter initieras så status och navigeringsfält kan tas bort
+class ToDo {
+  final String text;
+  bool isDone;
 
-  SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.manual,
-    overlays: [],
-  ); // Gömmer status- och navigeringsfält
-  runApp(MyApp());
+  ToDo(this.text, {this.isDone = false});
+}
+
+enum TodoFilter { all, done, undone } // Fasta värden för filtreringen
+
+// Här sparas data som kan ändras medan appen körs
+class AppState extends ChangeNotifier {
+  final List<ToDo> _todos = []; // Privat lista med alla ToDo objekt
+  TodoFilter _filter = TodoFilter.all; // Default all för filter
+
+  List<ToDo> get todos {
+    switch (_filter) {
+      case TodoFilter.done:
+        return _todos.where((t) => t.isDone).toList();
+      case TodoFilter.undone:
+        return _todos.where((t) => !t.isDone).toList();
+      case TodoFilter.all:
+        return List.unmodifiable(_todos);
+    }
+  } // Gör filtrerad lista tillgänglig för andra klasser och kan bara ändras inifrån AppState
+
+  TodoFilter get filter => _filter;
+
+  void setFilter(TodoFilter filter) {
+    _filter = filter;
+    notifyListeners();
+  }
+
+  void addToDo(String text) {
+    _todos.add(ToDo(text));
+    notifyListeners();
+  }
+
+  void removeToDo(ToDo todo) {
+    _todos.remove(todo);
+    notifyListeners();
+  }
+
+  void toggleToDoStatus(ToDo todo) {
+    todo.isDone = !todo.isDone; // växlar mellan true/false
+    notifyListeners();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -16,17 +55,40 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'TIG333 TODO',
-      home: HomePage(), // Anropar HomePage som är hemsidan
+      theme: ThemeData(
+        primaryColor: Colors.blue,
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: AppBarTheme(
+          centerTitle: true,
+          titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+        ),
+        iconTheme: IconThemeData(color: Colors.black),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          hintStyle: TextStyle(color: Colors.grey),
+          border: InputBorder.none,
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: ButtonStyle(
+            foregroundColor: WidgetStateProperty.all(Colors.white), // textfärg
+            backgroundColor: WidgetStateProperty.all(Colors.blue),
+            textStyle: WidgetStateProperty.all(
+              TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ), // bakgrund
+      ),
+      home: HomePage(), // Anropar HomePage som hemsidan
     );
   }
-}
-
-class ToDo {
-  final String text;
-  ToDo(this.text);
 }
 
 class HomePage extends StatelessWidget {
@@ -35,70 +97,60 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<ToDo> todos = [
-      ToDo('Sak att göra'),
-      ToDo("Ny sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ännu en sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ny sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ännu en sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ny sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ännu en sak att göra"),
-      ToDo("Ny sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ännu en sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ny sak att göra"),
-      ToDo('Sak att göra'),
-      ToDo("Ännu en sak att göra"),
-    ];
+    final todos = context
+        .watch<AppState>()
+        .todos; // Hämtar listan från AppState och lyssnar på ändringar
+
+    int numberOfTodos = todos.length;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('TIG333 TODO'),
-        centerTitle: true,
-        backgroundColor: Colors.grey,
+        title: Text('Todo Lista'),
         actions: [
-          IconButton(
+          PopupMenuButton<TodoFilter>(
             icon: Icon(Icons.more_vert), // Tre punkter ikon
-            tooltip: 'Meny', // namn för menyikonen
-            onPressed: () {
-              // tomt sålänge
+            tooltip: 'Filtrera',
+            onSelected: (filter) {
+              context.read<AppState>().setFilter(filter);
             },
+            itemBuilder: (context) => [
+              PopupMenuItem(value: TodoFilter.all, child: Text('alla')),
+              PopupMenuItem(value: TodoFilter.done, child: Text('färdiga')),
+              PopupMenuItem(value: TodoFilter.undone, child: Text('pågående')),
+            ],
           ),
         ],
       ),
-      body: ListView(
-        children: todos.map((todo) => _item(context, todo.text)).toList(),
-      ),
+      body:
+          numberOfTodos ==
+              0 // Om sant visas _emptyListMessage annars visas todo listan
+          ? Center(child: _emptyListMessage(context))
+          : ListView(
+              children: todos.map((todo) => _item(context, todo)).toList(),
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddToDoItem()),
+            MaterialPageRoute(builder: (context) => _AddToDoItem()),
           );
         },
-        backgroundColor: Colors.grey,
         shape: CircleBorder(),
-        child: Icon(Icons.add, color: Colors.white, size: 45),
+        child: Icon(Icons.add, size: 45),
       ),
     );
   }
 }
 
-class AddToDoItem extends StatefulWidget {
+class _AddToDoItem extends StatefulWidget {
   // "Lägg till sidan"
-  const AddToDoItem({super.key});
+  const _AddToDoItem({super.key});
 
   @override
   _AddToDoItemState createState() => _AddToDoItemState();
 }
 
-class _AddToDoItemState extends State<AddToDoItem> {
+class _AddToDoItemState extends State<_AddToDoItem> {
   // "Lägg till sidan" innehåll
   final TextEditingController _controller =
       TextEditingController(); // Controller för TextField
@@ -110,38 +162,44 @@ class _AddToDoItemState extends State<AddToDoItem> {
   }
 
   void _addToDo() {
-    String input = _controller.text;
-    print("Användarens ToDo: $input");
-    // Hämtar input från textfeld och printar i konsolen än så länge
+    final text = _controller.text.trim();
+    if (text.isNotEmpty) {
+      context.read<AppState>().addToDo(text); // Lägg till ToDo i AppState
+      _controller.clear(); // Töm TextField
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('TIG333 TODO'),
-        centerTitle: true,
-        backgroundColor: Colors.grey,
+        title: Text('Todo Lista'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios), // Pil ikon
-          tooltip: 'Tillbaka', // namn för pilikonen
+          tooltip: 'Tillbaka',
           onPressed: () {
             Navigator.pop(context); // Går tillbaka till föregående sida
           },
         ),
         actions: [
-          IconButton(
+          PopupMenuButton<TodoFilter>(
             icon: Icon(Icons.more_vert), // Tre punkter ikon
-            tooltip: 'Meny', // namn för menyikonen
-            onPressed: () {
-              // tomt sålänge
+            tooltip: 'Filtrera',
+            onSelected: (filter) {
+              context.read<AppState>().setFilter(filter);
+              Navigator.pop(context); // Går tillbaka till föregående sida
             },
+            itemBuilder: (context) => [
+              PopupMenuItem(value: TodoFilter.all, child: Text('alla')),
+              PopupMenuItem(value: TodoFilter.done, child: Text('färdiga')),
+              PopupMenuItem(value: TodoFilter.undone, child: Text('pågående')),
+            ],
           ),
         ],
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start, // default
+          mainAxisAlignment: MainAxisAlignment.start, // Default
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
@@ -150,38 +208,28 @@ class _AddToDoItemState extends State<AddToDoItem> {
                 40,
                 25,
                 25,
-              ), // vänster, topp, höger, botten
+              ), // Vänster, topp, höger, botten
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 2),
+                border: Border.all(
+                  color: Theme.of(context).primaryColor,
+                  width: 2,
+                ),
               ),
               child: TextField(
                 controller: _controller,
                 style: Theme.of(context).textTheme.titleLarge,
                 decoration: InputDecoration(
-                  hintText: "Skriv ny ToDo!", // Instruktions text
-                  hintStyle: TextStyle(color: Colors.grey),
-                  border: InputBorder.none, // Tar bort standard understrykning
+                  hintText: "Skriv ny todo!", // Instruktions text
                 ),
               ),
             ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextButton.icon(
-                  icon: Icon(Icons.add, color: Colors.black),
-                  label: Text(
-                    "ADD",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  onPressed: () {
-                    _addToDo();
-                  },
-                ),
-              ],
+            TextButton.icon(
+              icon: Icon(Icons.add),
+              label: Text("ADD"),
+              onPressed: () {
+                _addToDo();
+              },
             ),
           ],
         ),
@@ -190,21 +238,79 @@ class _AddToDoItemState extends State<AddToDoItem> {
   }
 }
 
-Widget _item(BuildContext context, String text) {
+Widget _emptyListMessage(BuildContext context) {
+  // Retunerar Text "Finns inga todos..."
+  final filter = context.watch<AppState>().filter;
+
+  if (filter == TodoFilter.all) {
+    return Text("Finns inga todos", style: TextStyle(color: Colors.grey));
+  } else if (filter == TodoFilter.done) {
+    return Text(
+      "Finns inga färdiga todos",
+      style: TextStyle(color: Colors.grey),
+    );
+  } else {
+    return Text(
+      "Finns inga pågående todos",
+      style: TextStyle(color: Colors.grey),
+    );
+  }
+}
+
+Widget _item(BuildContext context, ToDo todo) {
   // Retunerar todo-box
   return Container(
     padding: EdgeInsets.all(15),
     decoration: BoxDecoration(
-      border: Border(bottom: BorderSide(color: Colors.grey, width: 2.0)),
+      border: Border(
+        bottom: BorderSide(color: Theme.of(context).primaryColor, width: 2.0),
+      ),
     ),
     child: Row(
       children: [
-        Checkbox(value: false, onChanged: (_) {}),
-        SizedBox(width: 8), // Mellanrum mellan checkbox och text
-        Text(text, style: Theme.of(context).textTheme.titleLarge),
-        Spacer(), // tar upp all plats mellan texten och ikonen
-        Icon(Icons.close, color: Colors.black),
+        Checkbox(
+          value: todo.isDone,
+          fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+            if (states.contains(WidgetState.selected)) {
+              return Theme.of(context).primaryColor; // Färg när markerad
+            }
+            return Colors.transparent; // Färg när inte markerad
+          }),
+          onChanged: (_) {
+            context.read<AppState>().toggleToDoStatus(todo);
+          },
+        ),
+        SizedBox(width: 8),
+        Text(
+          todo.text,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            decoration: todo.isDone
+                ? TextDecoration.lineThrough
+                : TextDecoration.none,
+          ),
+        ),
+        Spacer(), // Tar upp all plats mellan texten och ikonen
+        IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () {
+            context.read<AppState>().removeToDo(todo); // Tar bort ToDo:n
+          },
+        ),
       ],
     ),
   );
+}
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // Säkerställer att flutter initieras så status och navigeringsfält kan tas bort
+
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.manual,
+    overlays: [],
+  ); // Gömmer status- och navigeringsfält
+  AppState state =
+      AppState(); // Skapar en instans av AppState som håller koll på appens tillstånd
+  runApp(
+    ChangeNotifierProvider(create: (context) => state, child: MyApp()),
+  ); // Gör AppState tillgänglig i hela appen via Provider
 }
