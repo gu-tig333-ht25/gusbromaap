@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import './api.dart';
 
 class ToDo {
   final String text;
@@ -31,6 +32,16 @@ class AppState extends ChangeNotifier {
 
   void setFilter(TodoFilter filter) {
     _filter = filter;
+    notifyListeners();
+  }
+
+  void getToDos() async {
+    List<ToDoApi> todosFromApi = await getToDoApi();
+
+    // Rensa gamla todos och lägg till de nya som ToDo
+    _todos.clear();
+    _todos.addAll(todosFromApi.map((t) => ToDo(t.title, isDone: t.done)));
+
     notifyListeners();
   }
 
@@ -301,7 +312,7 @@ Widget _item(BuildContext context, ToDo todo) {
   );
 }
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Säkerställer att flutter initieras så status och navigeringsfält kan tas bort
 
   SystemChrome.setEnabledSystemUIMode(
@@ -310,6 +321,7 @@ void main() {
   ); // Gömmer status- och navigeringsfält
   AppState state =
       AppState(); // Skapar en instans av AppState som håller koll på appens tillstånd
+  state.getToDos();
   runApp(
     ChangeNotifierProvider(create: (context) => state, child: MyApp()),
   ); // Gör AppState tillgänglig i hela appen via Provider
