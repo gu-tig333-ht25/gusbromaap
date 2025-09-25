@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import './main.dart';
 
 const String ENDPOINT = 'https://todoapp-api.apps.k8s.gu.se';
 
-class ToDoApi {
+/*class ToDoApi {
   final String id;
   final String title;
   final bool done;
@@ -14,7 +15,11 @@ class ToDoApi {
   factory ToDoApi.fromJson(Map<String, dynamic> json) {
     return ToDoApi(json['id'], json['title'], json['done']);
   }
-}
+
+  Map<String, dynamic> toJson() {
+    return {"title": title, "done": done};
+  }
+}*/
 
 // Hämta API key
 Future<String> registerApiKey() async {
@@ -27,7 +32,7 @@ Future<String> registerApiKey() async {
 }
 
 // Hämta lista av todos från API och retunerar en omvandlad lista av ToDoApi-objekt
-Future<List<ToDoApi>> getToDoApi() async {
+Future<List<ToDo>> getToDo() async {
   http.Response response = await http.get(
     Uri.parse('$ENDPOINT/todos?key=99268fd9-5743-45ca-8334-a033e82c7923'),
   );
@@ -38,9 +43,13 @@ Future<List<ToDoApi>> getToDoApi() async {
 
   // Omvandla varje JSON-objekt i jsonList till ett ToDoApi-objekt med factory,
   // och samla alla objekt i en lista
-  List<ToDoApi> todoApis = jsonList
-      .map((json) => ToDoApi.fromJson(json))
-      .toList();
+  List<ToDo> todos = jsonList.map((json) => ToDo.fromJson(json)).toList();
 
-  return todoApis;
+  return todos;
 }
+
+/*Future<List<ToDoApi>> addToDo() async {
+  http.post(
+    Uri.parse('$ENDPOINT/todos?key=99268fd9-5743-45ca-8334-a033e82c7923'),
+  );
+}*/

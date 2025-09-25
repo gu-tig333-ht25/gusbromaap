@@ -4,25 +4,38 @@ import 'package:provider/provider.dart';
 import './api.dart';
 
 class ToDo {
-  final String text;
-  bool isDone;
+  String id;
+  String title;
+  bool done;
 
-  ToDo(this.text, {this.isDone = false});
+  ToDo(this.title, {this.done = false, this.id = ''});
+
+  // Factory-konstruktor som gör om JSON till Dart-objekt
+  factory ToDo.fromJson(Map<String, dynamic> json) {
+    var todo = ToDo(json['title']);
+    todo.id = json['id'];
+    todo.done = json['done'];
+    return todo;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {"title": title, "done": done};
+  }
 }
 
 enum TodoFilter { all, done, undone } // Fasta värden för filtreringen
 
 // Här sparas data som kan ändras medan appen körs
 class AppState extends ChangeNotifier {
-  final List<ToDo> _todos = []; // Privat lista med alla ToDo objekt
+  List<ToDo> _todos = []; // Privat lista med alla ToDo objekt
   TodoFilter _filter = TodoFilter.all; // Default all för filter
 
   List<ToDo> get todos {
     switch (_filter) {
       case TodoFilter.done:
-        return _todos.where((t) => t.isDone).toList();
+        return _todos.where((t) => t.done).toList();
       case TodoFilter.undone:
-        return _todos.where((t) => !t.isDone).toList();
+        return _todos.where((t) => !t.done).toList();
       case TodoFilter.all:
         return List.unmodifiable(_todos);
     }
@@ -36,11 +49,8 @@ class AppState extends ChangeNotifier {
   }
 
   void getToDos() async {
-    List<ToDoApi> todosFromApi = await getToDoApi();
-
-    // Rensa gamla todos och lägg till de nya som ToDo
-    _todos.clear();
-    _todos.addAll(todosFromApi.map((t) => ToDo(t.title, isDone: t.done)));
+    var todos = await getToDo();
+    _todos = todos;
 
     notifyListeners();
   }
@@ -56,7 +66,7 @@ class AppState extends ChangeNotifier {
   }
 
   void toggleToDoStatus(ToDo todo) {
-    todo.isDone = !todo.isDone; // växlar mellan true/false
+    todo.done = !todo.done; // växlar mellan true/false
     notifyListeners();
   }
 }
@@ -280,7 +290,7 @@ Widget _item(BuildContext context, ToDo todo) {
     child: Row(
       children: [
         Checkbox(
-          value: todo.isDone,
+          value: todo.done,
           fillColor: WidgetStateProperty.resolveWith<Color>((states) {
             if (states.contains(WidgetState.selected)) {
               return Theme.of(context).primaryColor; // Färg när markerad
@@ -293,9 +303,9 @@ Widget _item(BuildContext context, ToDo todo) {
         ),
         SizedBox(width: 8),
         Text(
-          todo.text,
+          todo.title,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            decoration: todo.isDone
+            decoration: todo.done
                 ? TextDecoration.lineThrough
                 : TextDecoration.none,
           ),
