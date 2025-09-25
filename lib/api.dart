@@ -1,25 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import './main.dart';
+import './model.dart';
 
 const String ENDPOINT = 'https://todoapp-api.apps.k8s.gu.se';
-
-/*class ToDoApi {
-  final String id;
-  final String title;
-  final bool done;
-
-  ToDoApi(this.id, this.title, this.done);
-
-  // Factory-konstruktor som gör om JSON till Dart-objekt
-  factory ToDoApi.fromJson(Map<String, dynamic> json) {
-    return ToDoApi(json['id'], json['title'], json['done']);
-  }
-
-  Map<String, dynamic> toJson() {
-    return {"title": title, "done": done};
-  }
-}*/
+const String apikey = '99268fd9-5743-45ca-8334-a033e82c7923';
 
 // Hämta API key
 Future<String> registerApiKey() async {
@@ -34,7 +18,7 @@ Future<String> registerApiKey() async {
 // Hämta lista av todos från API och retunerar en omvandlad lista av ToDoApi-objekt
 Future<List<ToDo>> getToDo() async {
   http.Response response = await http.get(
-    Uri.parse('$ENDPOINT/todos?key=99268fd9-5743-45ca-8334-a033e82c7923'),
+    Uri.parse('$ENDPOINT/todos?key=$apikey'),
   );
   String body = response.body;
   print(body);

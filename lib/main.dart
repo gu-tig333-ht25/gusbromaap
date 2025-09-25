@@ -2,28 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import './api.dart';
-
-class ToDo {
-  String id;
-  String title;
-  bool done;
-
-  ToDo(this.title, {this.done = false, this.id = ''});
-
-  // Factory-konstruktor som gör om JSON till Dart-objekt
-  factory ToDo.fromJson(Map<String, dynamic> json) {
-    var todo = ToDo(json['title']);
-    todo.id = json['id'];
-    todo.done = json['done'];
-    return todo;
-  }
-
-  Map<String, dynamic> toJson() {
-    return {"title": title, "done": done};
-  }
-}
-
-enum TodoFilter { all, done, undone } // Fasta värden för filtreringen
+import './model.dart';
 
 // Här sparas data som kan ändras medan appen körs
 class AppState extends ChangeNotifier {
