@@ -21,7 +21,7 @@ Future<List<ToDo>> getToDo() async {
     Uri.parse('$ENDPOINT/todos?key=$apikey'),
   );
   String body = response.body;
-  print(body);
+  print("alla todos: ${response.body}");
   // Gör om JSON-strängen till en lista av Map-objekt
   List<dynamic> jsonList = jsonDecode(body);
 
@@ -39,5 +39,14 @@ Future<void> addToDo(ToDo todo) async {
     headers: {"Content-Type": "application/json"},
     body: jsonEncode(todo.toJson()),
   );
-  print(response.body);
+  print("Adderat: ${response.body}");
+}
+
+Future<void> updateToDo(ToDo todo) async {
+  http.Response response = await http.put(
+    Uri.parse('$ENDPOINT/todos/${todo.id}?key=$apikey'),
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode(todo.toJson()),
+  );
+  print("uppdaterat: ${response.body}");
 }

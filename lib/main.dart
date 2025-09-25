@@ -43,9 +43,11 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleToDoStatus(ToDo todo) {
+  void toggleToDoStatus(ToDo todo) async {
     todo.done = !todo.done; // växlar mellan true/false
     notifyListeners();
+    await api.updateToDo(todo);
+    getToDos();
   }
 }
 
