@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import './api.dart';
+import './api.dart' as api;
 import './model.dart';
 
 // Här sparas data som kan ändras medan appen körs
@@ -28,15 +28,14 @@ class AppState extends ChangeNotifier {
   }
 
   void getToDos() async {
-    var todos = await getToDo();
+    var todos = await api.getToDo();
     _todos = todos;
-
     notifyListeners();
   }
 
-  void addToDo(String text) {
-    _todos.add(ToDo(text));
-    notifyListeners();
+  void addToDo(String text) async {
+    await api.addToDo(ToDo(text));
+    getToDos();
   }
 
   void removeToDo(ToDo todo) {

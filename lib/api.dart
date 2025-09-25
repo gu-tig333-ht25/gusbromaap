@@ -32,8 +32,12 @@ Future<List<ToDo>> getToDo() async {
   return todos;
 }
 
-/*Future<List<ToDoApi>> addToDo() async {
-  http.post(
-    Uri.parse('$ENDPOINT/todos?key=99268fd9-5743-45ca-8334-a033e82c7923'),
+// Skickar ny todo till apin
+Future<void> addToDo(ToDo todo) async {
+  http.Response response = await http.post(
+    Uri.parse('$ENDPOINT/todos?key=$apikey'),
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode(todo.toJson()),
   );
-}*/
+  print(response.body);
+}
