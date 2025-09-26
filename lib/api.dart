@@ -50,3 +50,10 @@ Future<void> updateToDo(ToDo todo) async {
   );
   print("uppdaterat: ${response.body}");
 }
+
+Future<void> deleteTodo(ToDo todo) async {
+  http.Response response = await http.delete(
+    Uri.parse('$ENDPOINT/todos/${todo.id}?key=$apikey'),
+  );
+  print("raderat: ${todo}");
+}

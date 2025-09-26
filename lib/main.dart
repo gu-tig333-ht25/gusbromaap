@@ -38,9 +38,9 @@ class AppState extends ChangeNotifier {
     getToDos();
   }
 
-  void removeToDo(ToDo todo) {
-    _todos.remove(todo);
-    notifyListeners();
+  void removeToDo(ToDo todo) async {
+    await api.deleteTodo(todo);
+    getToDos();
   }
 
   void toggleToDoStatus(ToDo todo) async {
