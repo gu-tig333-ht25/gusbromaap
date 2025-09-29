@@ -1,27 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
-class ToDo {
-  final String text;
-  bool isDone;
-
-  ToDo(this.text, {this.isDone = false});
-}
-
-enum TodoFilter { all, done, undone } // Fasta värden för filtreringen
+import './api.dart' as api;
+import './model.dart';
 
 // Här sparas data som kan ändras medan appen körs
 class AppState extends ChangeNotifier {
-  final List<ToDo> _todos = []; // Privat lista med alla ToDo objekt
+  List<ToDo> _todos = []; // Privat lista med alla ToDo objekt
   TodoFilter _filter = TodoFilter.all; // Default all för filter
 
   List<ToDo> get todos {
     switch (_filter) {
       case TodoFilter.done:
-        return _todos.where((t) => t.isDone).toList();
+        return _todos.where((t) => t.done).toList();
       case TodoFilter.undone:
-        return _todos.where((t) => !t.isDone).toList();
+        return _todos.where((t) => !t.done).toList();
       case TodoFilter.all:
         return List.unmodifiable(_todos);
     }
@@ -34,19 +27,27 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addToDo(String text) {
-    _todos.add(ToDo(text));
+  void getToDos() async {
+    var todos = await api.getToDo();
+    _todos = todos;
     notifyListeners();
   }
 
-  void removeToDo(ToDo todo) {
-    _todos.remove(todo);
-    notifyListeners();
+  void addToDo(String text) async {
+    await api.addToDo(ToDo(text));
+    getToDos();
   }
 
-  void toggleToDoStatus(ToDo todo) {
-    todo.isDone = !todo.isDone; // växlar mellan true/false
+  void removeToDo(ToDo todo) async {
+    await api.deleteTodo(todo);
+    getToDos();
+  }
+
+  void toggleToDoStatus(ToDo todo) async {
+    todo.done = !todo.done; // växlar mellan true/false
     notifyListeners();
+    await api.updateToDo(todo);
+    getToDos();
   }
 }
 
@@ -269,7 +270,7 @@ Widget _item(BuildContext context, ToDo todo) {
     child: Row(
       children: [
         Checkbox(
-          value: todo.isDone,
+          value: todo.done,
           fillColor: WidgetStateProperty.resolveWith<Color>((states) {
             if (states.contains(WidgetState.selected)) {
               return Theme.of(context).primaryColor; // Färg när markerad
@@ -282,9 +283,9 @@ Widget _item(BuildContext context, ToDo todo) {
         ),
         SizedBox(width: 8),
         Text(
-          todo.text,
+          todo.title,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            decoration: todo.isDone
+            decoration: todo.done
                 ? TextDecoration.lineThrough
                 : TextDecoration.none,
           ),
@@ -301,7 +302,7 @@ Widget _item(BuildContext context, ToDo todo) {
   );
 }
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Säkerställer att flutter initieras så status och navigeringsfält kan tas bort
 
   SystemChrome.setEnabledSystemUIMode(
@@ -310,6 +311,7 @@ void main() {
   ); // Gömmer status- och navigeringsfält
   AppState state =
       AppState(); // Skapar en instans av AppState som håller koll på appens tillstånd
+  state.getToDos();
   runApp(
     ChangeNotifierProvider(create: (context) => state, child: MyApp()),
   ); // Gör AppState tillgänglig i hela appen via Provider
