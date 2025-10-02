@@ -27,11 +27,8 @@ Future<List<ToDo>> getToDo() async {
     throw Exception('Failed to fetch todos');
   }
 
-  // Gör om JSON-strängen till en lista av Map-objekt
   List<dynamic> jsonList = jsonDecode(response.body);
 
-  // Omvandla varje JSON-objekt i jsonList till ett ToDo-objekt med factory,
-  // och samla alla objekt i en lista
   List<ToDo> todos = jsonList.map((json) => ToDo.fromJson(json)).toList();
 
   return todos;

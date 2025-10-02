@@ -6,7 +6,7 @@ import './model.dart';
 
 // Här sparas data som kan ändras medan appen körs
 class AppState extends ChangeNotifier {
-  List<ToDo> _todos = []; // Privat lista med alla ToDo objekt
+  List<ToDo> _todos = []; 
   TodoFilter _filter = TodoFilter.all; // Default all för filter
 
   List<ToDo> get todos {
@@ -18,7 +18,7 @@ class AppState extends ChangeNotifier {
       case TodoFilter.all:
         return List.unmodifiable(_todos);
     }
-  } // Gör filtrerad lista tillgänglig för andra klasser och kan bara ändras inifrån AppState
+  } // Gör filtrerad _todos lista tillgänglig för andra klasser
 
   TodoFilter get filter => _filter;
 
